@@ -44,12 +44,23 @@ export default function Home() {
   };
 
   const handleRandomButtonClick = () => {
+    if(target == publicKey) {
+      return false;
+    }
    // const newValues = values.map((val) => (val === "0" ? getRandomHexValue() : val));
    const newValues = values.map((val) => ( getRandomHexValue()));
    
     setValues(newValues);
     setPublicKey(generatePublicKey(newValues));
   };
+
+  const handleResetButtonClick = () => {
+    const initialValues = new Array(40).fill("0");
+    initialValues[0] = 1;
+    setValues(initialValues)
+    setPublicKey(generatePublicKey(initialValues));
+    
+  }
 
   const setClass = (v, i) => {
     // Assuming target is an array or a string you want to compare with publicKey
@@ -62,10 +73,11 @@ export default function Home() {
 
   return (
     <div style={{ padding: "20px" }}>
-      
+
       <h1>Hexadecimal Input</h1>
       <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
         {values.map((value, index) => (
+          <>
           <select
             key={index}
             value={value}
@@ -78,11 +90,16 @@ export default function Home() {
               </option>
             ))}
           </select>
+         
+          </>
         ))}
       </div>
       <div style={{ marginTop: "20px" }}>
-        <button onClick={handleRandomButtonClick} style={{ padding: "10px 20px", fontSize: "16px" }}>
+        <button className="bg-blue-600 p-4 text-white" onClick={handleRandomButtonClick} style={{ padding: "10px 20px", fontSize: "16px" }}>
           Random
+        </button>
+        <button className="bg-yellow-600 p-4 ml-4 text-white" onClick={handleResetButtonClick} style={{ padding: "10px 20px", fontSize: "16px" }}>
+          Reset
         </button>
       </div>
       <div style={{ marginTop: "20px", fontSize: "30px", textTransform: "uppercase" }}>
