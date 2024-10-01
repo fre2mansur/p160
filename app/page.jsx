@@ -61,6 +61,9 @@ const [intervalId, setIntervalId] = useState(null); // New state to store the in
 
   const handleRandomButtonClick = () => {
     if(target == publicKey) {
+      clearInterval(intervalId);
+      setIsRunning(false);
+      setIntervalId(null);
       return false;
     }
    //const newValues = values.map((val) => (val === "0" ? getRandomHexValue() : val));
