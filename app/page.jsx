@@ -15,7 +15,7 @@ const generatePublicKey = (values) => {
     
     // Get the public key in compressed format (as a hex string)
     const publicKey = key.getPublic(true, "hex");
-    
+  
     return publicKey;
   } catch (error) {
    
@@ -51,6 +51,9 @@ export default function Home() {
 const [isRunning, setIsRunning] = useState(false); // New state to track if randomization is running
 const [intervalId, setIntervalId] = useState(null); // New state to store the interval ID
 
+const [history, setHistory] = useState([initialValues]); // History state with the initial values
+const [historyIndex, setHistoryIndex] = useState(0); // Index to track the current position in history
+
 
   const handleSelectChange = (index, event) => {
     const newValues = [...values];
@@ -69,12 +72,17 @@ const [intervalId, setIntervalId] = useState(null); // New state to store the in
    //const newValues = values.map((val) => (val === "0" ? getRandomHexValue() : val));
    const newValues = values.map((val, index) => {
     // Only update if lockValues[index] is 0 and the value is "0"
-    if (lockValues[index] === 0) {
-      return getRandomHexValue();
-    } else {
-      return val; // Keep the current value if locked or non-zero
-    }
-  });
+      if (lockValues[index] === 0) {
+        return getRandomHexValue();
+      } else {
+        return val; // Keep the current value if locked or non-zero
+      }
+    });
+
+    // Save new values to history and update the index
+    const updatedHistory = [...history.slice(0, historyIndex + 1), newValues];
+    setHistory(updatedHistory);
+    setHistoryIndex(updatedHistory.length - 1);
    
     setValues(newValues);
     setPublicKey(generatePublicKey(newValues));
@@ -128,6 +136,28 @@ const [intervalId, setIntervalId] = useState(null); // New state to store the in
     }
   };
 
+  // Function to move back in history
+  const handleBack = () => {
+    if (historyIndex > 0) {
+      const newIndex = historyIndex - 1;
+      setHistoryIndex(newIndex);
+      setValues(history[newIndex]);
+      generatePublicKey(history[newIndex]); // Generate public key for the previous state
+      setPublicKey(generatePublicKey(history[newIndex]));
+    }
+  };
+
+  // Function to move forward in history
+  const handleForward = () => {
+    if (historyIndex < history.length - 1) {
+      const newIndex = historyIndex + 1;
+      setHistoryIndex(newIndex);
+      setValues(history[newIndex]);
+      generatePublicKey(history[newIndex]); // Generate public key for the next state
+      setPublicKey(generatePublicKey(history[newIndex]));
+    }
+  };
+
   return (
     <div style={{ padding: "20px" }}>
        <p className="font-bold">Result</p>
@@ -165,6 +195,13 @@ const [intervalId, setIntervalId] = useState(null); // New state to store the in
         ))}
       </div>
       <div style={{ marginTop: "20px" }} className="mb-5">
+      <button className={historyIndex === 0 ? "bg-gray-200 p-4 mr-3 text-white" : "bg-gray-600 p-4 mr-3 text-white"} onClick={handleBack} disabled={historyIndex === 0} style={{ padding: "10px 20px", fontSize: "16px" }}>
+        Back
+      </button>
+      <button className={historyIndex === history.length - 1 ? "bg-gray-200 mr-3 p-4 text-white" : "bg-gray-600 mr-3 p-4 text-white"} onClick={handleForward} disabled={historyIndex === history.length - 1} style={{ padding: "10px 20px", fontSize: "16px" }}>
+        Forward
+      </button>
+
         <button className="bg-blue-600 p-4 text-white" onClick={handleRandomButtonClick} style={{ padding: "10px 20px", fontSize: "16px" }}>
           Random
         </button>
@@ -174,6 +211,8 @@ const [intervalId, setIntervalId] = useState(null); // New state to store the in
         <button className="bg-pink-600 p-4 ml-4 text-white" onClick={run} style={{ padding: "10px 20px", fontSize: "16px" }}>
         {isRunning ? "Stop" : "Auto Run"}
       </button>
+
+     
 
       </div>
       
