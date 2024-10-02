@@ -131,7 +131,7 @@ const [intervalId, setIntervalId] = useState(null); // New state to store the in
   return (
     <div style={{ padding: "20px" }}>
        <p className="font-bold">Result</p>
-      <div className="bg-gray-100 p-2 uppercase flex flex-wrap gap-1 font-semibold mb-5">
+      <div className="bg-gray-100 dark:bg-gray-700 p-2 uppercase flex flex-wrap gap-1 font-semibold mb-5">
         {publicKey.split("").map((v, i) => {
           const className = setClass(v, i);
           return (
@@ -143,15 +143,15 @@ const [intervalId, setIntervalId] = useState(null); // New state to store the in
       </div>
 
       <p className="font-bold">Hexadecimal Input</p>
-      <div className="bg-gray-100 grid grid-cols-3 lg:grid-cols-10 gap-5 p-2 mb-3">
+      <div className="bg-gray-100 dark:bg-gray-700 grid grid-cols-3 lg:grid-cols-10 gap-5 p-2 mb-3">
         {values.map((value, index) => (
-          <div className="flex bg-white border space-x-2 items-center p-1">
+          <div className="flex bg-white dark:bg-gray-800 border dark:border-gray-600 space-x-2 items-center p-1">
             <div className="w-full flex">
             <select disabled = {lockValues[index] == 1 ? true: false}
               key={index}
               value={value}
               onChange={(e) => handleSelectChange(index, e)}
-              className="w-full h-8"
+              className="w-full h-8 dark:bg-gray-950"
             >
               {hexOptions.map((option) => (
                 <option disabled={index === 0 && option == 0} key={option} value={option}>
@@ -160,7 +160,7 @@ const [intervalId, setIntervalId] = useState(null); // New state to store the in
               ))}
             </select>
             </div>
-           {lockValues[index] == 0 ? <div className="bg-gray-200 p-1" onClick={()=>{lock(index)}}>{unlockIcon}</div> : <div className="bg-gray-200 p-1 text-gray-400" onClick={()=>{unlock(index)}}>{lockIcon}</div>}
+           {lockValues[index] == 0 ? <div className="bg-gray-200 dark:bg-transparent p-1" onClick={()=>{lock(index)}}>{unlockIcon}</div> : <div className="bg-gray-200 dark:bg-transparent p-1 text-gray-400" onClick={()=>{unlock(index)}}>{lockIcon}</div>}
           </div>
         ))}
       </div>
@@ -178,7 +178,7 @@ const [intervalId, setIntervalId] = useState(null); // New state to store the in
       </div>
       
       <p className="font-bold">Expected result</p>
-      <p className="p-2 bg-gray-100 break-words font-semibold tracking-wider">
+      <p className="p-2 bg-gray-100 dark:bg-gray-700 break-words font-semibold tracking-wider">
         {target}
       </p>
     </div>
