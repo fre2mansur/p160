@@ -172,7 +172,7 @@ const [intervalId, setIntervalId] = useState(null); // New state to store the in
           Reset
         </button>
         <button className="bg-pink-600 p-4 ml-4 text-white" onClick={run} style={{ padding: "10px 20px", fontSize: "16px" }}>
-        {isRunning ? "Stop" : "Run"}
+        {isRunning ? "Stop" : "Auto Run"}
       </button>
 
       </div>
