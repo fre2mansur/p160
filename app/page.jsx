@@ -91,9 +91,9 @@ const [intervalId, setIntervalId] = useState(null); // New state to store the in
   const setClass = (v, i) => {
     // Assuming target is an array or a string you want to compare with publicKey
     if (target[i] === v) {
-      return "bg-green-500"; // Add a class if the condition matches
+      return "bg-green-500 text-green-900 px-1"; // Add a class if the condition matches
     } else {
-      return ""; // Return an empty string if no class is applied
+      return "px-1"; // Return an empty string if no class is applied
     }
   };
 
@@ -130,43 +130,8 @@ const [intervalId, setIntervalId] = useState(null); // New state to store the in
 
   return (
     <div style={{ padding: "20px" }}>
-
-      <h1>Hexadecimal Input</h1>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-        {values.map((value, index) => (
-          <div class="flex bg-gray-100 space-x-2 items-center">
-          <select disabled = {lockValues[index] == 1 ? true: false}
-            key={index}
-            value={value}
-            onChange={(e) => handleSelectChange(index, e)}
-            style={{ width: "60px", height: "40px", fontSize: "16px" }}
-          >
-            {hexOptions.map((option) => (
-              <option disabled={index === 0 && option == 0} key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-           {lockValues[index] == 0 ? <div onClick={()=>{lock(index)}}>{unlockIcon}</div> : <div onClick={()=>{unlock(index)}}>{lockIcon}</div>}
-            
-            
-          </div>
-        ))}
-      </div>
-      <div style={{ marginTop: "20px" }}>
-        <button className="bg-blue-600 p-4 text-white" onClick={handleRandomButtonClick} style={{ padding: "10px 20px", fontSize: "16px" }}>
-          Random
-        </button>
-        <button className="bg-yellow-600 p-4 ml-4 text-white" onClick={handleResetButtonClick} style={{ padding: "10px 20px", fontSize: "16px" }}>
-          Reset
-        </button>
-        <button className="bg-pink-600 p-4 ml-4 text-white" onClick={run} style={{ padding: "10px 20px", fontSize: "16px" }}>
-        {isRunning ? "Stop" : "Run"}
-      </button>
-
-      </div>
-      <div style={{ marginTop: "20px", fontSize: "30px", textTransform: "uppercase" }}>
-        <strong>Public Key:</strong> <br/> 
+       <p className="font-bold">Result</p>
+      <div className="bg-gray-100 dark:bg-gray-700 p-2 uppercase flex flex-wrap gap-1 font-semibold mb-5">
         {publicKey.split("").map((v, i) => {
           const className = setClass(v, i);
           return (
@@ -176,14 +141,46 @@ const [intervalId, setIntervalId] = useState(null); // New state to store the in
           );
         })}
       </div>
-      
 
-      <div style={{ marginTop: "20px", fontSize: "30px", textTransform: "uppercase" }}>
-     
-        <h2>{target}
-        </h2>
-        TO BE MATCHED
+      <p className="font-bold">Hexadecimal Input</p>
+      <div className="bg-gray-100 dark:bg-gray-700 grid grid-cols-3 lg:grid-cols-10 gap-5 p-2 mb-3">
+        {values.map((value, index) => (
+          <div className="flex bg-white dark:bg-gray-800 border dark:border-gray-600 space-x-2 items-center p-1">
+            <div className="w-full flex">
+            <select disabled = {lockValues[index] == 1 ? true: false}
+              key={index}
+              value={value}
+              onChange={(e) => handleSelectChange(index, e)}
+              className="w-full h-8 dark:bg-gray-950"
+            >
+              {hexOptions.map((option) => (
+                <option disabled={index === 0 && option == 0} key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+            </div>
+           {lockValues[index] == 0 ? <div className="bg-gray-200 dark:bg-transparent p-1" onClick={()=>{lock(index)}}>{unlockIcon}</div> : <div className="bg-gray-200 dark:bg-transparent p-1 text-gray-400" onClick={()=>{unlock(index)}}>{lockIcon}</div>}
+          </div>
+        ))}
       </div>
+      <div style={{ marginTop: "20px" }} className="mb-5">
+        <button className="bg-blue-600 p-4 text-white" onClick={handleRandomButtonClick} style={{ padding: "10px 20px", fontSize: "16px" }}>
+          Random
+        </button>
+        <button className="bg-yellow-600 p-4 ml-4 text-white" onClick={handleResetButtonClick} style={{ padding: "10px 20px", fontSize: "16px" }}>
+          Reset
+        </button>
+        <button className="bg-pink-600 p-4 ml-4 text-white" onClick={run} style={{ padding: "10px 20px", fontSize: "16px" }}>
+        {isRunning ? "Stop" : "Auto Run"}
+      </button>
+
+      </div>
+      
+      <p className="font-bold">Expected result</p>
+      <p className="p-2 bg-gray-100 dark:bg-gray-700 break-words uppercase font-semibold tracking-wider">
+        {target}
+      </p>
     </div>
   );
 }
