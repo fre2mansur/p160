@@ -178,7 +178,7 @@ const [intervalId, setIntervalId] = useState(null); // New state to store the in
       </div>
       
       <p className="font-bold">Expected result</p>
-      <p className="p-2 bg-gray-100 dark:bg-gray-700 break-words font-semibold tracking-wider">
+      <p className="p-2 bg-gray-100 dark:bg-gray-700 break-words uppercase font-semibold tracking-wider">
         {target}
       </p>
     </div>
