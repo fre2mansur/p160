@@ -63,6 +63,7 @@ const [historyIndex, setHistoryIndex] = useState(0); // Index to track the curre
   };
 
   const handleRandomButtonClick = () => {
+    console.log("history", history)
     if(target == publicKey) {
       clearInterval(intervalId);
       setIsRunning(false);
@@ -80,7 +81,13 @@ const [historyIndex, setHistoryIndex] = useState(0); // Index to track the curre
     });
 
     // Save new values to history and update the index
-    const updatedHistory = [...history.slice(0, historyIndex + 1), newValues];
+    let updatedHistory = [...history.slice(0, historyIndex + 1), newValues];
+
+    // If history length exceeds 50, remove the oldest item
+    if (updatedHistory.length > 50) {
+      updatedHistory = updatedHistory.slice(1); // Remove the first (oldest) item
+    }
+    
     setHistory(updatedHistory);
     setHistoryIndex(updatedHistory.length - 1);
    
