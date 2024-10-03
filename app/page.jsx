@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ec as EC } from "elliptic";
 
 // Initialize the secp256k1 elliptic curve
@@ -58,6 +58,9 @@ const [historyIndex, setHistoryIndex] = useState(0); // Index to track the curre
 const hexRegex = /^[0-9A-F]+$/;
 const [hasInvalidChar, setHasInvalidChar] = useState(false); 
 
+const [result, setResult] = useState([]); // To store the last 10 results
+
+
   const handleSelectChange = (index, event) => {
     const newValues = [...values];
     newValues[index] = event.target.value;
@@ -66,7 +69,7 @@ const [hasInvalidChar, setHasInvalidChar] = useState(false);
   };
 
   const handleRandomButtonClick = () => {
-    console.log("history", history)
+    console.log("result", result)
     if(target == publicKey) {
       clearInterval(intervalId);
       setIsRunning(false);
@@ -96,9 +99,13 @@ const [hasInvalidChar, setHasInvalidChar] = useState(false);
     
     setHistory(updatedHistory);
     setHistoryIndex(updatedHistory.length - 1);
-   
     setValues(newValues);
-    setPublicKey(generatePublicKey(newValues));
+
+    // Update public key and result
+    const newPublicKey = generatePublicKey(newValues);
+    setPublicKey(newPublicKey); // publicKey will trigger updateResult via useEffect
+    const newPrivateKey = newValues.join('');
+    updateResult(newPrivateKey, newPublicKey);
   };
 
   const handleResetButtonClick = () => {
@@ -106,7 +113,7 @@ const [hasInvalidChar, setHasInvalidChar] = useState(false);
     initialValues[0] = 1;
     setValues(initialValues)
     setPublicKey(generatePublicKey(initialValues));
-    
+  
   }
 
   const setClass = (v, i) => {
@@ -143,6 +150,7 @@ const [hasInvalidChar, setHasInvalidChar] = useState(false);
       // Start the interval (10 randomizations per second)
       const id = setInterval(() => {
         handleRandomButtonClick()
+   
       }, 100); // 100 milliseconds = 10 times per second
       setIntervalId(id);
       setIsRunning(true);
@@ -186,10 +194,65 @@ const [hasInvalidChar, setHasInvalidChar] = useState(false);
       .split('') // Convert the input string into an array
       .slice(0, 40) // Ensure it doesn't exceed 40 characters
       .map((char, index) => char || values[index]); // If a character is missing, retain the old value
-
+      
     // Update the state for select fields
     setValues(updatedValues);
+    setPublicKey(generatePublicKey(updatedValues));
   };
+
+  const calculateMatch = (generatedPublicKey, targetPublicKey) => {
+    let matchCount = 0;
+  
+    // Ensure both public keys are defined and have a valid length
+    if (!generatedPublicKey || !targetPublicKey || generatedPublicKey.length !== targetPublicKey.length) {
+      console.error('Public key or target public key is missing or has a mismatched length.');
+      return { matchCount: 0, matchPercentage: 0 };
+    }
+  
+    // Compare each character in the generatedPublicKey with the targetPublicKey
+    generatedPublicKey.split('').forEach((char, index) => {
+      if (char === targetPublicKey[index]) {
+        matchCount++;
+      }
+    });
+  
+    const matchPercentage = ((matchCount / targetPublicKey.length) * 100).toFixed(2);
+    return { matchCount, matchPercentage };
+  };
+  
+
+  // Function to update the result history
+  const updateResult = (privateKey, publicKey) => {
+    const { matchCount, matchPercentage } = calculateMatch(publicKey, target);
+  
+    // Add the new result to the history
+    const newResult = {
+      matchPercentage: parseFloat(matchPercentage),
+      matchCount,
+      privateKey, // Store the private key used to generate the public key
+    };
+  
+    setResult((prevResult) => {
+      let updatedResult = [...prevResult, newResult];
+  
+      // Sort the history by matchPercentage in descending order
+      updatedResult.sort((a, b) => b.matchPercentage - a.matchPercentage);
+  
+      // Keep only the top 10 records
+      if (updatedResult.length > 10) {
+        updatedResult = updatedResult.slice(0, 10);
+      }
+  
+      return updatedResult;
+    });
+  };
+
+// Update result when publicKey changes
+useEffect(() => {
+  if (publicKey) {
+    updateResult();
+  }
+}, [publicKey]);
 
   return (
     <div style={{ padding: "20px" }}>
@@ -261,6 +324,16 @@ const [hasInvalidChar, setHasInvalidChar] = useState(false);
       <p className="p-2 bg-gray-100 dark:bg-gray-700 break-words uppercase font-semibold tracking-wider">
         {target}
       </p>
+
+      {/* Display the last 10 match results in DESC order */}
+      <h3 className="font-bold mt-4">Match History (Last 10 Runs)</h3>
+      <div className="bg-gray-200 dark:bg-gray-800 p-2 rounded-md">
+        {result.map((r, index) => (
+          <p key={index} className="mb-2">
+            <strong>{r.matchPercentage}%</strong> match ({r.matchCount} characters) - Generated key: {r.privateKey}
+          </p>
+        ))}
+      </div>
     </div>
   );
 }
