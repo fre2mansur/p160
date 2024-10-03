@@ -40,20 +40,23 @@ export default function Home() {
   const [values, setValues] = useState(initialValues);
   const [publicKey, setPublicKey] = useState("000000000000000000000000000000000000000000000000000000000000000000");
 
-  const lockIcon = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+  const lockIcon = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
   <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
 </svg>;
 
-  const unlockIcon =  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+  const unlockIcon =  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
   <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75M3.75 21.75h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
 </svg>;
 
 const [isRunning, setIsRunning] = useState(false); // New state to track if randomization is running
 const [intervalId, setIntervalId] = useState(null); // New state to store the interval ID
 
+ // Initialize history with 50 entries, each filled with `initialValues`
 const [history, setHistory] = useState([initialValues]); // History state with the initial values
 const [historyIndex, setHistoryIndex] = useState(0); // Index to track the current position in history
 
+const hexRegex = /^[0-9A-F]+$/;
+const [hasInvalidChar, setHasInvalidChar] = useState(false); 
 
   const handleSelectChange = (index, event) => {
     const newValues = [...values];
@@ -81,7 +84,10 @@ const [historyIndex, setHistoryIndex] = useState(0); // Index to track the curre
     });
 
     // Save new values to history and update the index
-    let updatedHistory = [...history.slice(0, historyIndex + 1), newValues];
+   let updatedHistory = [...history.slice(0, historyIndex + 1), newValues];
+
+
+
 
     // If history length exceeds 50, remove the oldest item
     if (updatedHistory.length > 50) {
@@ -165,6 +171,26 @@ const [historyIndex, setHistoryIndex] = useState(0); // Index to track the curre
     }
   };
 
+   // Handle change in text input
+   const handleInputChange = (e) => {
+    let newValue = e.target.value.toUpperCase();
+    
+    
+     // Check if the input contains any non-hexadecimal characters
+    const isValidHex = newValue.split('').every((char) => hexRegex.test(char));
+    // Update the state to indicate if invalid characters are found
+    setHasInvalidChar(!isValidHex);
+
+    // Update the values array based on the input text (only up to 40 characters)
+    const updatedValues = newValue
+      .split('') // Convert the input string into an array
+      .slice(0, 40) // Ensure it doesn't exceed 40 characters
+      .map((char, index) => char || values[index]); // If a character is missing, retain the old value
+
+    // Update the state for select fields
+    setValues(updatedValues);
+  };
+
   return (
     <div style={{ padding: "20px" }}>
        <p className="font-bold">Result</p>
@@ -180,7 +206,15 @@ const [historyIndex, setHistoryIndex] = useState(0); // Index to track the curre
       </div>
 
       <p className="font-bold">Hexadecimal Input</p>
+      <input
+        className={values.join('').length != 40 || hasInvalidChar ? "border-2 border-red-400 w-full p-2 outline-0": "border-2 outline-0 border-green-400 w-full p-2"  } //
+        type="text"
+        value={values.join('')} // Join values without commas
+        maxLength={40} // Limit input to 40 characters
+        onChange={handleInputChange} // Handle input change
+      />
       <div className="bg-gray-100 dark:bg-gray-700 grid grid-cols-3 lg:grid-cols-10 gap-5 p-2 mb-3">
+        
         {values.map((value, index) => (
           <div className="flex bg-white dark:bg-gray-800 border dark:border-gray-600 space-x-2 items-center p-1">
             <div className="w-full flex">
